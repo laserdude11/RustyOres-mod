@@ -41,6 +41,7 @@ public class ThermiteWire extends Block{
 	public static IIcon line_overlayicon;
 	public static final String name = "thermitewire";
 	private boolean wiresProvidePower = true;
+	private boolean reacting = false;
     private Set blocksNeedingUpdate = new HashSet();
 
 	protected ThermiteWire() {
@@ -279,17 +280,6 @@ public class ThermiteWire extends Block{
     {
         if (!par1World.isRemote)
         {
-            boolean flag = this.canPlaceBlockAt(par1World, par2, par3, par4);
-
-            if (flag)
-            {
-                this.updateAndPropagateCurrentStrength(par1World, par2, par3, par4);
-            }
-            else
-            {
-                this.dropBlockAsItem(par1World, par2, par3, par4, 0, 0);
-                par1World.setBlockToAir(par2, par3, par4);
-            }
 
             super.onNeighborBlockChange(par1World, par2, par3, par4, par5);
         }
@@ -433,15 +423,44 @@ public class ThermiteWire extends Block{
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_)
     {
     	if(!world.isRemote){
-    		if(player.getEquipmentInSlot(0) != null && player.getEquipmentInSlot(0).getItem() == Items.flint_and_steel){
-    			world.func_147480_a(x, y, z, false);
-    			world.func_147480_a(x, y-1, z, true);
+    		if(player.getEquipmentInSlot(0).getItem() == Items.flint_and_steel){
+    			this.react(world, x, y, z);
     			player.getEquipmentInSlot(0).damageItem(1, player);
     			return true;
     		}
     		return false;
     	}
         return false;
+    }
+    
+    private void onReactionNotification(World w, int x, int y, int z){
+    	react(w, x, y, z);
+    }
+    
+    private void react(World w, int x, int y, int z){
+    	// Destroy the current block
+    	System.out.println("Reaction");
+		w.func_147480_a(x, y, z, false);
+		w.func_147480_a(x, y-1, z, true);
+		
+		// React all the other blocks around it too.
+		notifyNeighborsOfReaction(w, x, y, z);
+		
+    }
+    
+    private void notifyReaction(World w, int x, int y, int z){
+    	Block target = w.getBlock(x, y, z);
+    	if (target == ModBlocks.thermitewire){
+    		ThermiteWire twTarget = (ThermiteWire) target;
+    		twTarget.onReactionNotification(w, x, y, z);
+    	}
+    }
+    
+    private void notifyNeighborsOfReaction(World w, int x, int y, int z){
+    	notifyReaction(w, x, y, z+1);
+    	notifyReaction(w, x, y, z-1);
+    	notifyReaction(w, x+1, y, z);
+    	notifyReaction(w, x-1, y, z);
     }
     
     public void destroyNeighbor(World world, int x, int y, int z){
