@@ -444,8 +444,8 @@ public class ThermiteWire extends Block{
 		w.func_147480_a(x, y-1, z, true);
 		
 		// React all the other blocks around it too.
+		this.countTime(w, 40);
 		notifyNeighborsOfReaction(w, x, y, z);
-		
     }
     
     private void notifyReaction(World w, int x, int y, int z){
@@ -457,14 +457,24 @@ public class ThermiteWire extends Block{
     }
     
     private void notifyNeighborsOfReaction(World w, int x, int y, int z){
+    	notifyReaction(w, x, y-1, z+1);
+    	notifyReaction(w, x, y-1, z-1);
+    	notifyReaction(w, x+1, y-1, z);
+    	notifyReaction(w, x-1, y-1, z);
+    	notifyReaction(w, x, y+1, z+1);
+    	notifyReaction(w, x, y+1, z-1);
+    	notifyReaction(w, x+1, y+1, z);
+    	notifyReaction(w, x-1, y+1, z);
     	notifyReaction(w, x, y, z+1);
     	notifyReaction(w, x, y, z-1);
     	notifyReaction(w, x+1, y, z);
     	notifyReaction(w, x-1, y, z);
     }
     
-    public void destroyNeighbor(World world, int x, int y, int z){
-    	
+    private void countTime(World w, int delta){
+    	for(int i = 0; i < delta; i++){
+    		System.out.println("tick");
+    		w.tick();
+    	}
     }
-    
 }
