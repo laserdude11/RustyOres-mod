@@ -29,7 +29,7 @@ import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-public class ThermiteWire extends Block{
+public class ThermiteWire extends Thermite{
 	
 	@SideOnly(Side.CLIENT)
 	public static IIcon crossicon;
@@ -45,7 +45,7 @@ public class ThermiteWire extends Block{
     private Set blocksNeedingUpdate = new HashSet();
 
 	protected ThermiteWire() {
-		super(Material.circuits);
+		super();
         this.setBlockTextureName(Constants.MODID + ":" + name);
         this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.0625F, 1.0F);
         this.disableStats();
@@ -271,20 +271,7 @@ public class ThermiteWire extends Block{
             return i1 > par5 ? i1 : par5;
         }
     }
-
-    /**
-     * Lets the block know when one of its neighbor changes. Doesn't know which neighbor changed (coordinates passed are
-     * their own) Args: x, y, z, neighbor blockID
-     */
-    public void onNeighborBlockChange(World par1World, int par2, int par3, int par4, Block par5)
-    {
-        if (!par1World.isRemote)
-        {
-
-            super.onNeighborBlockChange(par1World, par2, par3, par4, par5);
-        }
-    }
-
+    
     /**
      * Returns the ID of the items to drop on destruction.
      */
@@ -378,7 +365,7 @@ public class ThermiteWire extends Block{
      */
     public static boolean isPowerProviderOrWire(IBlockAccess par0IBlockAccess, int par1, int par2, int par3, int par4)
     {
-        return par0IBlockAccess.getBlock(par1, par2, par3) == ModBlocks.thermitewire;
+        return par0IBlockAccess.getBlock(par1, par2, par3) == ModBlocks.thermitewire || par0IBlockAccess.getBlock(par1, par2, par3) == ModBlocks.thermiteBlock;
     }
 
     /**
@@ -387,7 +374,7 @@ public class ThermiteWire extends Block{
      */
     public static boolean isPoweredOrRepeater(IBlockAccess par0IBlockAccess, int par1, int par2, int par3, int par4)
     {
-        return par0IBlockAccess.getBlock(par1, par2, par3) == ModBlocks.thermitewire;
+        return par0IBlockAccess.getBlock(par1, par2, par3) == ModBlocks.thermitewire || par0IBlockAccess.getBlock(par1, par2, par3) == ModBlocks.thermiteBlock;
     }
 
     /**
@@ -433,48 +420,16 @@ public class ThermiteWire extends Block{
         return false;
     }
     
-    private void onReactionNotification(World w, int x, int y, int z){
-    	react(w, x, y, z);
-    }
-    
-    private void react(World w, int x, int y, int z){
+    @Override
+    protected void react(World w, int x, int y, int z){
     	// Destroy the current block
-    	System.out.println("Reaction");
 		w.func_147480_a(x, y, z, false);
 		w.func_147480_a(x, y-1, z, true);
 		
-		// React all the other blocks around it too.
+		// wait 40 ticks
 		this.countTime(w, 40);
+		
+		// notify neighbors of reaction 
 		notifyNeighborsOfReaction(w, x, y, z);
-    }
-    
-    private void notifyReaction(World w, int x, int y, int z){
-    	Block target = w.getBlock(x, y, z);
-    	if (target == ModBlocks.thermitewire){
-    		ThermiteWire twTarget = (ThermiteWire) target;
-    		twTarget.onReactionNotification(w, x, y, z);
-    	}
-    }
-    
-    private void notifyNeighborsOfReaction(World w, int x, int y, int z){
-    	notifyReaction(w, x, y-1, z+1);
-    	notifyReaction(w, x, y-1, z-1);
-    	notifyReaction(w, x+1, y-1, z);
-    	notifyReaction(w, x-1, y-1, z);
-    	notifyReaction(w, x, y+1, z+1);
-    	notifyReaction(w, x, y+1, z-1);
-    	notifyReaction(w, x+1, y+1, z);
-    	notifyReaction(w, x-1, y+1, z);
-    	notifyReaction(w, x, y, z+1);
-    	notifyReaction(w, x, y, z-1);
-    	notifyReaction(w, x+1, y, z);
-    	notifyReaction(w, x-1, y, z);
-    }
-    
-    private void countTime(World w, int delta){
-    	for(int i = 0; i < delta; i++){
-    		System.out.println("tick");
-    		w.tick();
-    	}
     }
 }
