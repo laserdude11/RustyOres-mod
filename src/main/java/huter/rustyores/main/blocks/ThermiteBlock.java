@@ -26,6 +26,10 @@ public class ThermiteBlock extends Thermite{
         this.setBlockTextureName(Constants.MODID + ":" + name);
         GameRegistry.registerBlock(this, name);
 	}
+    
+    public int getReactionSpeed(){
+        return 40;
+    }
 	
 	@Override
     public Item getItemDropped(int metadata, Random random, int fortune) {
@@ -40,10 +44,9 @@ public class ThermiteBlock extends Thermite{
 	
 	@Override
 	protected void react(World w, int x, int y, int z){
+        isReacting = true;
 		w.func_147480_a(x, y-1, z, true);
-		
-		// wait 40 ticks
-		this.countTime(w, 40);
+        
 		
 		// notify neighbors of reaction 
 		notifyNeighborsOfReaction(w, x, y, z);
@@ -54,19 +57,19 @@ public class ThermiteBlock extends Thermite{
     /**
      * Called whenever the block is added into the world. Args: world, x, y, z
      */
-    public void onBlockAdded(World p_149726_1_, int p_149726_2_, int p_149726_3_, int p_149726_4_)
+    public void onBlockAdded(World w, int x, int y, int z)
     {
-        p_149726_1_.scheduleBlockUpdate(p_149726_2_, p_149726_3_, p_149726_4_, this, this.tickRate(p_149726_1_));
+        w.scheduleBlockUpdate(x, y, z, this, this.tickRate(w));
     }
 
    /**
      * Ticks the block if it's been scheduled
      */
-    public void updateTick(World p_149674_1_, int p_149674_2_, int p_149674_3_, int p_149674_4_, Random p_149674_5_)
-    {
-        if (!p_149674_1_.isRemote)
-        {
-            this.drop(p_149674_1_, p_149674_2_, p_149674_3_, p_149674_4_);
+    public void updateTick(World w, int p_149674_2_, int p_149674_3_, int p_149674_4_, Random p_149674_5_){
+        if (!w.isRemote){
+            if (this.isReacting && w.getWorldTime() % 40 == 0){
+                this.drop(w, p_149674_2_, p_149674_3_, p_149674_4_);
+            }
         }
     }
 
@@ -84,8 +87,7 @@ public class ThermiteBlock extends Thermite{
                     this.func_149829_a(entityfallingblock);
                     w.spawnEntityInWorld(entityfallingblock);
                 }
-            }
-            else if(activated){ 
+            } else if(isReacting){ 
             	System.out.println("activated");
             	w.setBlockToAir(x, y, z);
             	
@@ -100,7 +102,7 @@ public class ThermiteBlock extends Thermite{
                 }
                 
                 this.react(w, x, y, z);
-            }else{
+            } else {
                 w.setBlockToAir(x, y, z);
 
                 while (canDrop(w, x, y - 1, z) && y > 0)

@@ -51,7 +51,11 @@ public class ThermiteWire extends Thermite{
         this.disableStats();
         GameRegistry.registerBlock(this, name);
 	}
-	
+
+    public int getReactionSpeed(){
+        return 40;
+    }
+    
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
     {
         return null;
@@ -422,14 +426,5 @@ public class ThermiteWire extends Thermite{
     
     @Override
     protected void react(World w, int x, int y, int z){
-    	// Destroy the current block
-		w.func_147480_a(x, y, z, false);
-		w.func_147480_a(x, y-1, z, true);
-		
-		// wait 40 ticks
-		this.countTime(w, 40);
-		
-		// notify neighbors of reaction 
-		notifyNeighborsOfReaction(w, x, y, z);
     }
 }
