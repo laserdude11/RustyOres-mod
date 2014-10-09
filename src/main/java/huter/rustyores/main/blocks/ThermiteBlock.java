@@ -18,7 +18,7 @@ import net.minecraft.world.World;
 public class ThermiteBlock extends Thermite{
 	
 	public static final String name = "thermiteBlock";
-	
+	public static boolean fallInstantly;
 
 	protected ThermiteBlock() {
 		super();
@@ -30,7 +30,12 @@ public class ThermiteBlock extends Thermite{
     public int getReactionSpeed(){
         return 40;
     }
-	
+
+    //TODO: eventually this will drop stuff
+    public void extraEffects(World w, int x, int y, int z){
+        //this.drop(w, x, y, z);
+    }
+
 	@Override
     public Item getItemDropped(int metadata, Random random, int fortune) {
         return ModItems.thermitedust;
@@ -42,17 +47,7 @@ public class ThermiteBlock extends Thermite{
         return 9;
     }
 	
-	@Override
-	protected void react(World w, int x, int y, int z){
-        isReacting = true;
-		w.func_147480_a(x, y-1, z, true);
-        
-		
-		// notify neighbors of reaction 
-		notifyNeighborsOfReaction(w, x, y, z);
-    }
 	
-	public static boolean fallInstantly;
 
     /**
      * Called whenever the block is added into the world. Args: world, x, y, z
@@ -60,17 +55,6 @@ public class ThermiteBlock extends Thermite{
     public void onBlockAdded(World w, int x, int y, int z)
     {
         w.scheduleBlockUpdate(x, y, z, this, this.tickRate(w));
-    }
-
-   /**
-     * Ticks the block if it's been scheduled
-     */
-    public void updateTick(World w, int p_149674_2_, int p_149674_3_, int p_149674_4_, Random p_149674_5_){
-        if (!w.isRemote){
-            if (this.isReacting && w.getWorldTime() % 40 == 0){
-                this.drop(w, p_149674_2_, p_149674_3_, p_149674_4_);
-            }
-        }
     }
 
     private void drop(World w, int x, int y, int z)

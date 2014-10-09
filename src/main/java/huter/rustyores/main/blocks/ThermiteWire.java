@@ -41,7 +41,6 @@ public class ThermiteWire extends Thermite{
 	public static IIcon line_overlayicon;
 	public static final String name = "thermitewire";
 	private boolean wiresProvidePower = true;
-	private boolean reacting = false;
     private Set blocksNeedingUpdate = new HashSet();
 
 	protected ThermiteWire() {
@@ -56,6 +55,10 @@ public class ThermiteWire extends Thermite{
         return 40;
     }
     
+    public void extraEffects(World w, int x, int y, int z){
+        ;
+    }
+
 	public AxisAlignedBB getCollisionBoundingBoxFromPool(World par1World, int par2, int par3, int par4)
     {
         return null;
@@ -122,10 +125,6 @@ public class ThermiteWire extends Thermite{
         }
     }
 
-    private void calculateCurrentChanges(World par1World, int par2, int par3, int par4, int par5, int par6, int par7)
-    {
-        
-    }
 
     /**
      * Calls World.notifyBlocksOfNeighborChange() for all neighboring blocks, but only if the given block is a redstone
@@ -410,21 +409,4 @@ public class ThermiteWire extends Thermite{
         return par0Str.equals("cross") ? crossicon : (par0Str.equals("line") ? lineicon : (par0Str.equals("cross_overlay") ? cross_overlayicon : (par0Str.equals("line_overlay") ? line_overlayicon : null)));
     }
     
-    @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_)
-    {
-    	if(!world.isRemote){
-    		if(player.getEquipmentInSlot(0).getItem() == Items.flint_and_steel){
-    			this.react(world, x, y, z);
-    			player.getEquipmentInSlot(0).damageItem(1, player);
-    			return true;
-    		}
-    		return false;
-    	}
-        return false;
-    }
-    
-    @Override
-    protected void react(World w, int x, int y, int z){
-    }
 }
